@@ -2,12 +2,8 @@
 # -*- coding: utf-8 -*-
 # @Date    : 2016-11-26 17:00:29
 # @Author  : wangziqiang
-
-from django.shortcuts import render, redirect
-
-def index(request):
-    pass
+from django.shortcuts import render
 
 
-def writter(request):
-    return render(request,"writter.html", {})
+def writer(request):
+    return render(request,"writer.html",{})
