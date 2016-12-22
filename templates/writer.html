@@ -1,28 +1,120 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html>
 
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Examples</title>
-    <meta name="description" content="">
-    <meta name="keywords" content="">
-<!--     <link href="{% static "bootstrap/css/bootstrap.min.css" %}" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="{% static "bootstrap/css/bootstrap.min.css" %}" rel="stylesheet">
     <link href="{% static "summernote/summernote.css" %}" rel="stylesheet">
-    <script src="http://libs.baidu.com/jquery/1.11.3/jquery.min.js"></script>
-    <script src="{% static "bootstrap/js/bootstrap.min.js" %}"></script>
-    <script src="{% static "summernote/summernote.min.js" %}"></script> -->
+    <link href="{% static "css/writer.css" %}" rel="stylesheet">
 
+    <style type="text/css">
+
+    .navbar-default {
+        background-color: slateblue;
+        border:none;
+    }
+
+    .navbar-default .navbar-nav > li > a {
+        color: #fff;
+    }
+
+    .navbar-header > a {
+        color: #fff !important;
+    }
+
+    </style>
 </head>
 
-<body>
+<body scroll="no">
+<!--导航-->
+    <nav class="navbar navbar-default noradius nopadding" role="navigation">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-header">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">Wang Blog</a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="navbar-collapse-header">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="#">写文章</a></li>
+                    <li><a href="#">登出</a></li>
+                    <li><a href="#">登录</a></li>
+                    <li><a href="#">注册</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xs-2 nopadding">
 
-    <form id="some_form" method="post" action="{% url 'writer' %}">
-        {% csrf_token %}
-        {{ form|safe }}
-        <!-- <input type="submit" name="submit" value="Create Category" /> -->
-    </form>
+                <div id="folder" class="list-group auto-height nopadding">
+                    <div class="new-folder">
+                        <a href="#"><span class="glyphicon glyphicon-plus"></span> 新建文集</a>
+                    </div>
+                    <a class="list-group-item folder-item active">
+                        <span class="glyphicon glyphicon-folder-open pull-left"></span>
+                        <div class="brief-text "> 任意长度的字符串我的阿斯顿发撒旦法阿斯顿发撒旦法</div>
+                        <!-- <span class="folder-name"> 随笔asdfasdfsad adf aesfadsfasdf</span> -->
+                    </a>
+                    <a class="list-group-item folder-item">
+                        <span class="glyphicon glyphicon-folder-close pull-left"></span>
+                        <span class="brief-text "> 日记</span>
+                    </a>
+                </div>
+            </div>
+            <div class="col-xs-3 nopadding">
+                <div id="notes" class="list-group auto-height nopadding" >
+                    <div class="new-note">
+                        <a href="#"><span class="glyphicon glyphicon-pencil"></span> 新建文章</a>
+                    </div>
+                    <a class="list-group-item note-item active">
+                        <div>
+                            <div class="brief-text  note-item-title">Cras justo odio</div>
+                            <span class="glyphicon glyphicon-trash pull-right"></span>
+                        </div>
+                        <div class="brief-text  note-item-content">内容提供的咖啡机萨法士大夫阿斯顿发撒旦法阿里的健康发牢骚的看法静安寺两地分居</div>
+                        <div class="note-item-footer">
+                            <span style="margin-right:24px;">2016-12-21</span>
+                            <span style="margin-right:24px;">12312字</span>
+                        </div>
+                    </a>
+                    <a class="list-group-item note-item">
+                        <div>
+                            <div class="brief-text  note-item-title">Cras justo odio</div>
+                            <span class="glyphicon glyphicon-trash pull-right"></span>
+                        </div>
+                        <div class="brief-text  note-item-content">内容提供的咖啡机萨法士大夫阿斯顿发撒旦法阿里的健康发牢骚的看法静安寺两地分居</div>
+                        <div class="note-item-footer">
+                            <span style="margin-right:24px;">2016-12-21</span>
+                            <span style="margin-right:24px;">12123312字</span>
+                        </div>
+                    </a>
+
+                </div>
+            </div>
+            <div class="col-xs-7 nopadding">
+                <div>
+                    <input type="text" class="title" value="无标题文章" name="title">
+                </div>
+                <div id="summernote" class="noradus nopadding"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static "js/jquery.js" %}"></script>
+    <script src="{% static "bootstrap/js/bootstrap.min.js" %}"></script>
+    <script src="{% static "summernote/summernote.min.js" %}"></script>
+    <script src="{% static "js/writer.js" %}"></script>
 </body>
 
 </html>
