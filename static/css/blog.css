@@ -10,3 +10,7 @@
 .navbar-header > a {
     color: #fff !important;
 }
+
+.noradius {
+    border-radius: 0;
+}

@@ -9,4 +9,8 @@ from blog import views
 
 urlpatterns=[
     url(r'^writer/$', views.writer, name='writer'),
+    url(r'^save_article/$', views.save_article, name='save_article'),
+    url(r'^sign_in/$', views.sign_in, name='sign_in'),
+    url(r'^sign_out/$', views.sign_out, name='sign_out'),
+    url(r'^sign_up/$', views.sign_up, name='sign_up'),
 ]

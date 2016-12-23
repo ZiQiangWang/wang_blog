@@ -1,5 +1,18 @@
 $(document).ready(function() {
 
+    var csrftoken = Cookies.get('csrftoken');
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+
     $('#summernote').summernote({
         minHeight: null, // set minimum height of editor
         maxHeight: null, // set maximum height of editor
@@ -31,9 +44,6 @@ $(document).ready(function() {
                 var saveBtn = '<button id="saveFileBtn" type="button" class="btn btn-success btn-sm" title="保存" data-event="something" tabindex="-1">保存</button>';
                 var fileGroup = '<div class="note-btn-group btn-group" style="padding-left:20px;">' + saveBtn + '</div>';
                 $(fileGroup).appendTo($('.note-toolbar'));
-                $('#saveFileBtn').click(function(event) {
-
-                });
             }
         }
 
@@ -69,6 +79,22 @@ $(document).ready(function() {
         $(this).addClass('active');
     });
 
+    $('#saveFileBtn').click(function(event) {
+        var content = $('#summernote').summernote('code');
+        var title = $('#title').val();
+        $.ajax({
+            url: '/save_article/',
+            type: 'POST',
+            dataType: 'json',
+            data: {title: title, content:content}
+        })
+        .done(function() {
+            console.log("success");
+        })
+        .fail(function() {
+            console.log("error");
+        })
+    });
     $('#edit').click(function(event) {
         $('#summernote').summernote({
             focus: true

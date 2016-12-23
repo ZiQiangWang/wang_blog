@@ -28,10 +28,13 @@
             <!-- Collect the nav links, forms, and other content for toggling -->
             <div class="collapse navbar-collapse" id="navbar-collapse-header">
                 <ul class="nav navbar-nav navbar-right">
-                    <li><a href="#">写文章</a></li>
-                    <li><a href="#">登出</a></li>
-                    <li><a href="#">登录</a></li>
-                    <li><a href="#">注册</a></li>
+                    {% if user.is_authenticated %}
+                        <li><a href="{% url 'writer' %}">写文章</a></li>
+                        <li><a href="{% url 'sign_out' %}">登出</a></li>
+                    {% else %}
+                        <li><a href="{% url 'sign_in' %}">登录</a></li>
+                        <li><a href="{% url 'sign_up' %}">注册</a></li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
@@ -42,6 +45,7 @@
     {% endblock %}
 
     <script src="{% static "js/jquery.js" %}"></script>
+    <script src="{% static "js/js.cookie.js" %}"></script>
     <script src="{% static "bootstrap/js/bootstrap.min.js" %}"></script>
     <script src="{% static "summernote/summernote.min.js" %}"></script>
     {% block script %} {% endblock %}
