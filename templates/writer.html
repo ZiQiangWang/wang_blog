@@ -18,15 +18,12 @@
                 <div class="new-folder">
                     <a href="#"><span class="glyphicon glyphicon-plus"></span> 新建文集</a>
                 </div>
-                <a class="list-group-item folder-item active">
+                {% for f in folders %}
+                <a class="list-group-item folder-item {% ifequal forloop.counter 1 %} active {% endifequal %}" data-fid={{ f.id }}>
                     <span class="glyphicon glyphicon-folder-open pull-left"></span>
-                    <div class="brief-text "> 任意长度的字符串我的阿斯顿发撒旦法阿斯顿发撒旦法</div>
-                    <!-- <span class="folder-name"> 随笔asdfasdfsad adf aesfadsfasdf</span> -->
+                    <div class="brief-text "> {{ f.name }} </div>
                 </a>
-                <a class="list-group-item folder-item">
-                    <span class="glyphicon glyphicon-folder-close pull-left"></span>
-                    <span class="brief-text "> 日记</span>
-                </a>
+                {% endfor %}
             </div>
         </div>
         <div class="col-xs-3 nopadding">
@@ -34,28 +31,22 @@
                 <div class="new-note">
                     <a href="#"><span class="glyphicon glyphicon-pencil"></span> 新建文章</a>
                 </div>
+
+                {% for a in articles %}
                 <a class="list-group-item note-item active">
                     <div>
-                        <div class="brief-text  note-item-title">Cras justo odio</div>
+                        <div class="brief-text  note-item-title">{{ a.title }}</div>
                         <span class="glyphicon glyphicon-trash pull-right"></span>
                     </div>
-                    <div class="brief-text  note-item-content">内容提供的咖啡机萨法士大夫阿斯顿发撒旦法阿里的健康发牢骚的看法静安寺两地分居</div>
+                    <div class="brief-text  note-item-content">
+                        {{ a.content }}
+                    </div>
                     <div class="note-item-footer">
-                        <span style="margin-right:24px;">2016-12-21</span>
-                        <span style="margin-right:24px;">12312字</span>
+                        <span style="margin-right:24px;">{{ a.update_time }}</span>
+                        <span style="margin-right:24px;">{{ a.num_of_words }}字</span>
                     </div>
                 </a>
-                <a class="list-group-item note-item">
-                    <div>
-                        <div class="brief-text  note-item-title">Cras justo odio</div>
-                        <span class="glyphicon glyphicon-trash pull-right"></span>
-                    </div>
-                    <div class="brief-text  note-item-content">内容提供的咖啡机萨法士大夫阿斯顿发撒旦法阿里的健康发牢骚的看法静安寺两地分居</div>
-                    <div class="note-item-footer">
-                        <span style="margin-right:24px;">2016-12-21</span>
-                        <span style="margin-right:24px;">12123312字</span>
-                    </div>
-                </a>
+                {% endfor %}
             </div>
         </div>
         <div class="col-xs-7 nopadding">

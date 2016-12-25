@@ -18,6 +18,16 @@ class UserProfile(models.Model):
         return self.user.username
 
 @python_2_unicode_compatible
+class Folder(models.Model):
+    '''
+    文件夹类，用于保存文章专辑
+    '''
+    name = models.CharField(max_length=128,blank=False)
+    owner = models.ForeignKey("UserProfile")
+    def __str__(self):
+        return self.name
+
+@python_2_unicode_compatible
 class Article(models.Model):
     '''
     文章类，包括标题，内容，创建时间，更新时间，评论
@@ -31,6 +41,7 @@ class Article(models.Model):
     likes = models.IntegerField(default=0)
     keeps = models.IntegerField(default=0)
     author = models.ForeignKey("UserProfile")
+    folder = models.ForeignKey("Folder")
 
     def __str__(self):
         return self.title

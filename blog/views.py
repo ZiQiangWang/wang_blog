@@ -15,7 +15,14 @@ def index(request):
 
 @login_required
 def writer(request):
-    return render(request,"writer.html",{})
+    user = get_user(request)
+    sdata = {}
+    folders = db_utils.get_folders_by_user(user)
+    articles = db_utils.get_articls_by_folder(folders[0])
+    sdata['folders'] = folders
+    sdata['article'] = articles
+    return render(request,"writer.html",sdata)
+
 
 @login_required
 def save_article(request):
@@ -53,6 +60,14 @@ def sign_out(request):
     logout(request)
     return redirect('/')
 
+
+# 获取当前用户
+def get_user(request):
+    user = request.user
+    user_profile = db_utils.get_user_profile(user)
+    return user_profile
+
+
 # 校验邮箱
 def validate_email(email):
 
@@ -88,8 +103,11 @@ def sign_up(request):
             msg = u'该昵称已被使用'
             return JsonResponse({'success':False, 'msg':msg})
 
-        db_utils.add_user(email,username,password)
-        msg = u'注册成功'
+        try:
+            db_utils.add_user(email,username,password)
+            msg = u'注册成功'
+        except Exception as e:
+            msg = u'注册失败'
 
         user= authenticate(username=email,password=password)
         if user and user.is_active:
@@ -98,3 +116,16 @@ def sign_up(request):
         return JsonResponse({'success':True, 'msg':msg, 'url':'/'})
     else:
         return render(request,"sign_up.html")
+
+def add_folder(request):
+    user = get_user(request)
+
+    try:
+        name = request.POST['name']
+        db_utils.add_folder(name,user)
+    except:
+        traceback.print_exc()
+        return JsonResponse({'success':False, 'msg':'创建文集失败'})
+
+    return JsonResponse({'success':True, 'msg':'创建文集成功'})
+
