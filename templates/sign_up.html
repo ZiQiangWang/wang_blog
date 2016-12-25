@@ -2,9 +2,6 @@
 
 {% load static %}
 
-{% block head %}
-    <link href="{% static "css/login-page.css" %}" rel="stylesheet" >
-{% endblock %}
 {% block body %}
     <div class="container">
         <div class="login-page">
@@ -15,11 +12,10 @@
                     <a href="{% url 'sign_up' %}" class="active">注册</a>
                 </span>
             </h4>
-            <form method="post" class="sm-width center-block" action="{% url 'sign_up' %}">
-                {% csrf_token %}
+            <div class="sm-width center-block">
                 <div class="form-group">
                     <div class="icon-addon addon-lg">
-                        <input type="text" placeholder="你的邮箱地址" class="form-control" name="email">
+                        <input type="email" placeholder="你的邮箱地址" class="form-control" name="email">
                         <label for="email" class="glyphicon glyphicon-envelope" rel="tooltip" title="email"></label>
                     </div>
                 </div>
@@ -31,20 +27,20 @@
                 </div>
                 <div class="form-group">
                     <div class="icon-addon addon-lg">
-                        <input type="text" placeholder="输入密码" class="form-control" name="password">
+                        <input type="password" placeholder="输入密码" class="form-control" name="password">
                         <label class="glyphicon glyphicon-lock"></label>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <div class="icon-addon addon-lg">
-                        <input type="text" placeholder="再次输入密码" class="form-control" name="password-confirm">
+                        <input type="password" placeholder="再次输入密码" class="form-control" name="password-confirm">
                         <label for="password-confirm" class="glyphicon glyphicon-lock" rel="tooltip" title="password-confirm"></label>
                     </div>
                 </div>
 
-                <input type="submit" class="btn btn-success btn-submit-lg" style="width:100%" value="注册">
-            </form>
+                <button id="btn-sign-up" class="btn btn-success btn-submit-lg">注册</button>
+            </div>
         </div>
     </div>
 

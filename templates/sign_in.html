@@ -2,12 +2,10 @@
 
 {% load static %}
 
-{% block head %}
-    <link href="{% static "css/login-page.css" %}" rel="stylesheet" >
-{% endblock %}
 {% block body %}
     <div class="container">
         <div class="login-page">
+
             <h4 class="title">
                 <span>
                     <a href="{% url 'sign_in' %}" class="active">登录</a>
@@ -15,8 +13,7 @@
                     <a href="{% url 'sign_up' %}">注册</a>
                 </span>
             </h4>
-            <form method="post" class="sm-width center-block" action="{% url 'sign_in' %}">
-                {% csrf_token %}
+            <div class="sm-width center-block"">
                 <div class="form-group">
                     <div class="icon-addon addon-lg">
                         <input type="text" placeholder="邮箱地址" class="form-control" name="email">
@@ -25,13 +22,12 @@
                 </div>
                 <div class="form-group">
                     <div class="icon-addon addon-lg">
-                        <input type="text" placeholder="输入密码" class="form-control" name="password">
+                        <input type="password" placeholder="输入密码" class="form-control" name="password">
                         <label class="glyphicon glyphicon-lock"></label>
                     </div>
                 </div>
-
-                <input type="submit" class="btn btn-info btn-submit-lg" style="width:100%" value="登录">
-            </form>
+                <button id="btn-sign-in" class="btn btn-info btn-submit-lg">登录</button>
+            </div>
         </div>
     </div>
 

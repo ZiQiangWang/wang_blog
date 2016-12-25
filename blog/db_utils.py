@@ -4,14 +4,25 @@
 # @Author  : wangziqiang
 
 from models import *
-import datetime
+from django.utils import timezone
+import re
 
-def add_article(title, content):
-    article = Article(title=title,content=content,create_time=datetime.datetime.now())
+def add_article(title, content,user):
+    article = Article()
+    article.title = title
+    article.content = content
+    article.num_of_words = len(get_text_from_tags(content))
+    article.create_time = timezone.now()
+    article.author = user
     article.save()
 
+def get_text_from_tags(content):
+    r = re.compile('<\/?[^>]+(>|$)')
+    text = r.sub('',content)
+    return text
+
 def email_registered(email):
-    result = User.objects.filter(email=email)
+    result = User.objects.filter(username=email)
     return len(result)>0
 
 def name_used(name):
@@ -29,3 +40,9 @@ def add_user(email,username,password):
     profile.cname = username
     profile.save()
 
+def get_user_profile(user):
+    result = UserProfile.objects.filter(user=user)
+    if len(result):
+        return result[0]
+
+    return None

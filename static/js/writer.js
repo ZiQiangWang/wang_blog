@@ -1,17 +1,17 @@
-$(document).ready(function() {
+$(function() {
 
-    var csrftoken = Cookies.get('csrftoken');
-    function csrfSafeMethod(method) {
-        // these HTTP methods do not require CSRF protection
-        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-    }
-    $.ajaxSetup({
-        beforeSend: function(xhr, settings) {
-            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader("X-CSRFToken", csrftoken);
-            }
-        }
-    });
+    // var csrftoken = Cookies.get('csrftoken');
+    // function csrfSafeMethod(method) {
+    //     // these HTTP methods do not require CSRF protection
+    //     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    // }
+    // $.ajaxSetup({
+    //     beforeSend: function(xhr, settings) {
+    //         if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+    //             xhr.setRequestHeader("X-CSRFToken", csrftoken);
+    //         }
+    //     }
+    // });
 
     $('#summernote').summernote({
         minHeight: null, // set minimum height of editor
@@ -88,13 +88,24 @@ $(document).ready(function() {
             dataType: 'json',
             data: {title: title, content:content}
         })
-        .done(function() {
-            console.log("success");
-        })
-        .fail(function() {
-            console.log("error");
+        .done(function(data) {
+            notify(data.success,data.msg)
         })
     });
+
+
+    function notify(success,msg) {
+
+        var msg_item = $('<div class="alert '+ (success ? 'alert-success' : 'alert-danger') +' notify-item" role="alert">'+msg+'</div>')
+            .click(function() {
+                $(this).remove()
+            }).hide()
+        msg_item.appendTo($('#notify'))
+        msg_item.slideDown('fast').delay(3000).slideUp('300', function() {
+            msg_item.remove()
+        });
+    }
+
     $('#edit').click(function(event) {
         $('#summernote').summernote({
             focus: true
