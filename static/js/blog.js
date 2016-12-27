@@ -95,26 +95,6 @@ $(function () {
         })
     })
 
-    $('#folder > .new-folder').click(function(event) {
-        $.ajax({
-            url: '/add_folder/',
-            type: 'POST',
-            dataType: 'json',
-            data: {name: '新建文集2'},
-        })
-        .done(function(data) {
-            if (data.success) {
-                var new_folder = $('<a class="list-group-item folder-item"> \
-                    <span class="glyphicon glyphicon-folder-open pull-left"></span> \
-                    <div class="brief-text ">新建文集2</div> \
-                    </a>')
-                $('#folder').prepend(new_folder)
-            }else {
-                notify(data.success,data.msg)
-            }
-        })
-
-    });
     function notify(success,msg) {
 
         var msg_item = $('<div class="alert '+ (success ? 'alert-success' : 'alert-danger') +' notify-item" role="alert">'+msg+'</div>')

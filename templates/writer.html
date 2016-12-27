@@ -10,46 +10,46 @@
 
 {% block body %}
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-xs-2 nopadding">
-
-            <div id="folder" class="list-group auto-height nopadding">
+<div class="container-fluid text-select-disable" style="padding:0">
+    <div class="row-fluid">
+        <div class="col-md-2 col-sm-6 nopadding">
+            <div id="folder" class="list-group auto-height nopadding pointer">
                 <div class="new-folder">
                     <a href="#"><span class="glyphicon glyphicon-plus"></span> 新建文集</a>
                 </div>
+
                 {% for f in folders %}
-                <a class="list-group-item folder-item {% ifequal forloop.counter 1 %} active {% endifequal %}" data-fid={{ f.id }}>
-                    <span class="glyphicon glyphicon-folder-open pull-left"></span>
-                    <div class="brief-text "> {{ f.name }} </div>
+                <a href="#" class="list-group-item folder-item {% ifequal f.mid fmid %} active {% endifequal %}" data-fmid={{ f.mid }}>
+                    <span class="glyphicon {% ifequal f.mid fmid %}glyphicon-folder-open {% else %} glyphicon-folder-close {% endifequal %} glyphicon-left"></span>
+                    <div class="brief-text"> {{ f.name }} </div>
                 </a>
                 {% endfor %}
             </div>
         </div>
-        <div class="col-xs-3 nopadding">
-            <div id="notes" class="list-group auto-height nopadding" >
-                <div class="new-note">
+        <div class="col-md-3 col-sm-6 nopadding">
+            <div id="article" class="list-group auto-height nopadding pointer" >
+                <div class="new-article">
                     <a href="#"><span class="glyphicon glyphicon-pencil"></span> 新建文章</a>
                 </div>
 
                 {% for a in articles %}
-                <a class="list-group-item note-item active">
+                <a class="list-group-item article-item {% ifequal a.mid amid %}active{% endifequal %}">
                     <div>
-                        <div class="brief-text  note-item-title">{{ a.title }}</div>
-                        <span class="glyphicon glyphicon-trash pull-right"></span>
+                        <div class="brief-text article-item-title">{{ a.title }}</div>
+                        <span class="glyphicon glyphicon-trash pull-right" {% ifnotequal a.mid amid %} style="display: none;" {% endifnotequal %}></span>
                     </div>
-                    <div class="brief-text  note-item-content">
-                        {{ a.content }}
+                    <div class="brief-text article-item-content">
+                        {{ a.content.content_to_text }}
                     </div>
-                    <div class="note-item-footer">
-                        <span style="margin-right:24px;">{{ a.update_time }}</span>
-                        <span style="margin-right:24px;">{{ a.num_of_words }}字</span>
+                    <div class="article-item-footer">
+                        <span>{{ a.update_time }}</span>
+                        <span>{{ a.num_of_words }}字</span>
                     </div>
                 </a>
                 {% endfor %}
             </div>
         </div>
-        <div class="col-xs-7 nopadding">
+        <div class="col-md-7 col-sm-12 nopadding">
             <div>
                 <input id="title" type="text" class="title" value="无标题文章" name="title">
             </div>

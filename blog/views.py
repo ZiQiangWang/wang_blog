@@ -7,6 +7,7 @@ from django.http import HttpResponse,JsonResponse
 from django.contrib.auth import login,logout,authenticate
 from django.contrib.auth.decorators import login_required
 import db_utils
+import utils
 import traceback
 import re
 
@@ -15,14 +16,19 @@ def index(request):
 
 @login_required
 def writer(request):
-    user = get_user(request)
     sdata = {}
+    user = get_user(request)
     folders = db_utils.get_folders_by_user(user)
     articles = db_utils.get_articls_by_folder(folders[0])
-    sdata['folders'] = folders
-    sdata['article'] = articles
-    return render(request,"writer.html",sdata)
 
+    sdata['fmid']=folders[0].mid
+    if articles:
+        sdata['amid']=articles[0].mid
+
+    sdata['folders'] = folders
+    sdata['articles'] = articles
+
+    return render(request,"writer.html",sdata)
 
 @login_required
 def save_article(request):
@@ -31,7 +37,7 @@ def save_article(request):
         content = request.POST.get('content')
         user = request.user
         user_profile = db_utils.get_user_profile(user)
-        db_utils.add_article(title,content,user_profile)
+        db_utils.save_article(title,content,user_profile)
 
     except:
         traceback.print_exc()
@@ -67,16 +73,6 @@ def get_user(request):
     user_profile = db_utils.get_user_profile(user)
     return user_profile
 
-
-# 校验邮箱
-def validate_email(email):
-
-    if len(email) > 7:
-        if re.match("^.+\\@(\\[?)[a-zA-Z0-9\\-\\.]+\\.([a-zA-Z]{2,3}|[0-9]{1,3})(\\]?)$", email) != None:
-            return True
-    return False
-
-
 # 注册
 def sign_up(request):
     if request.POST:
@@ -87,7 +83,7 @@ def sign_up(request):
         password_confirm = request.POST['password_confirm']
 
         msg = ''
-        if not validate_email(email):
+        if not utils.validate_email(email):
             msg = u'邮箱格式不正确'
             return JsonResponse({'success':False, 'msg':msg})
 
@@ -117,15 +113,97 @@ def sign_up(request):
     else:
         return render(request,"sign_up.html")
 
-def add_folder(request):
+# 添加文集
+@login_required
+def new_folder(request):
     user = get_user(request)
 
     try:
         name = request.POST['name']
-        db_utils.add_folder(name,user)
+        folder = db_utils.new_folder(name,user)
     except:
         traceback.print_exc()
         return JsonResponse({'success':False, 'msg':'创建文集失败'})
 
-    return JsonResponse({'success':True, 'msg':'创建文集成功'})
+    return JsonResponse({'success':True, 'msg':'创建文集成功', 'fmid':folder.mid, 'name':folder.name})
+
+
+# 重命名文集
+@login_required
+def rename_folder(request):
+    user = get_user(request)
+
+    try:
+        new_name = request.POST['new_name']
+        fmid = request.POST['fmid']
+        folder = db_utils.rename_folder_of_mid(new_name,fmid)
+    except:
+        traceback.print_exc()
+        return JsonResponse({'success':False, 'msg':'重命名文集失败'})
+
+    return JsonResponse({'success':True, 'msg':'重命名文集成功', 'fmid':folder.mid, 'name':folder.name})
+
+@login_required
+def new_article(request):
+    user = get_user(request)
+
+    try:
+        fmid = request.POST.get('fmid')
+        folder = db_utils.get_folder_by_mid(fmid)
+        article = db_utils.new_article(user, folder)
+    except:
+        traceback.print_exc()
+        return JsonResponse({'success':False, 'msg':'新建文章失败'})
+
+
+    return JsonResponse({'success':True, 'msg':'新建文章成功', 'article':article.to_dict()})
+
+@login_required
+def folder(request,fmid):
+    sdata = {}
+    user = get_user(request)
+    folders = db_utils.get_folders_by_user(user)
+
+    folder = db_utils.get_folder_by_mid(fmid)
+    if not folder:
+        sdata['fmid'] = folders[0].mid
+        articles = db_utils.get_articles_by_folder(folders[0])
+        if articles:
+            sdata['amid'] = articles[0].mid
+    else:
+        sdata['fmid']=fmid
+        articles = db_utils.get_articles_by_folder(folder)
+        if articles:
+            sdata['amid']=article[0].mid
+
+    sdata['folders'] = folders
+    sdata['articles'] = articles
+    return render(request,"writer.html",sdata)
+
+@login_required
+def article(request,fmid,amid):
+    sdata={}
+    user = get_user(request)
+    folders = db_utils.get_folders_by_user(user)
+
+    # 根据传入的fmid判断，若fmid不存在，则使用第一个文集的第一篇文章;
+    # 若fmid存在，判断amid是否属于该文集，如属于，则显示，否则显示该文集的第一篇文章
+    folder = db_utils.get_folder_by_mid(fmid)
+    if not folder:
+        sdata['fmid'] = folders[0].mid
+        articles = db_utils.get_articles_by_folder(folders[0])
+        if articles:
+            sdata['amid'] = articles[0].mid
+    else:
+        sdata['fmid'] = fmid
+        articles = db_utils.get_articles_by_folder(folder)
+        if articles:
+            if db_utils.article_in_articles(articles,amid):
+                sdata['amid'] = amid
+            else:
+                sdata['amid'] = articles[0].mid
+    sdata['folders'] = folders
+    sdata['articles'] = articles
+
+    return render(request,"writer.html",sdata)
 

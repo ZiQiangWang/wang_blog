@@ -6,6 +6,8 @@
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.contrib.auth.models import AbstractUser, User
+from utils import get_text_from_content,model_instance_to_dict
+
 
 @python_2_unicode_compatible
 class UserProfile(models.Model):
@@ -22,8 +24,10 @@ class Folder(models.Model):
     '''
     文件夹类，用于保存文章专辑
     '''
+    mid = models.CharField(max_length=128,null=False)
     name = models.CharField(max_length=128,blank=False)
     owner = models.ForeignKey("UserProfile")
+
     def __str__(self):
         return self.name
 
@@ -32,6 +36,7 @@ class Article(models.Model):
     '''
     文章类，包括标题，内容，创建时间，更新时间，评论
     '''
+    mid = models.CharField(max_length=128,null=False)
     title = models.CharField(max_length=128,blank=False)
     content = models.TextField(blank=False)
     create_time = models.DateTimeField()
@@ -42,6 +47,14 @@ class Article(models.Model):
     keeps = models.IntegerField(default=0)
     author = models.ForeignKey("UserProfile")
     folder = models.ForeignKey("Folder")
+
+    def content_to_text(self):
+        get_text_from_content(self.content)
+
+    def to_dict(self):
+        result = model_instance_to_dict(self)
+        result['content'] = get_text_from_content(self.content)
+        return result
 
     def __str__(self):
         return self.title

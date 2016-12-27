@@ -7,6 +7,10 @@
     border-radius: 0;
 }
 
+.pointer{
+    cursor:pointer;
+}
+
 .title {
     width: 100%;
     padding: 10px 20px 10px 30px;
@@ -28,7 +32,6 @@
 
 
 .list-group-item {
-    /*border-top: none;*/
     border-left: none;
     border-right: none;
 }
@@ -39,17 +42,17 @@
     border-radius: 0;
 }
 
-.note-item {
+.article-item {
     /*font-size: 20px !important;*/
 }
 
-.note-item.active, .note-item.hover {
+.article-item.active, .article-item.hover {
     /*background-color: #d1c091 !important;*/
     background-color: lightskyblue !important;
     border-color: lightskyblue !important;
 }
 
-.note-item-footer {
+.article-item-footer {
     color:gray;
     font-size: 10px;
     font-style: italic;
@@ -58,27 +61,36 @@
     margin-bottom: -10px;
 }
 
-.note-item-title {
+.article-item-footer span {
+    margin-right:24px;
+}
+.article-item-title {
     color:black;
     font-size: 20px;
 }
 
-.note-item-content {
+.article-item-content {
     color: dimgray;
     font-size: 14px;
 }
 
-.folder-item {
+.folder-item, .new-folder-item{
     padding-left:  40px;
     padding-right: 40px;
+}
+
+.folder-rename-input {
+    width: 80%;
+    display:inline-block;
 }
 .folder-item.active, .folder-item.hover {
     background-color: royalblue !important;
     border-color: royalblue !important;
 }
+
 .brief-text {
-    width: 90%;
-    display:inline-block;
+    width: 80%;
+    display:inline;
     padding-left: 10px;
     overflow: hidden;
     white-space: nowrap;
@@ -88,15 +100,21 @@
     -moz-binding: url("ellipsis.xml#ellipsis");/*FireFox*/
 }
 
+ span .glyphicon-left {
+    float: left;
+    width: 20%
+}
+
 .auto-height {
-    overfl ow-y: auto;
+    overflow-y: auto;
     overflow-x: hidden;
     border: lightgrey solid thin;
     border-right: none;
 }
 
-.new-folder, .new-note {
-    padding: 0 20px;
-    margin-top: 20px;
-    margin-bottom: 10px;
+.new-folder, .new-article {
+    padding-left: 20px;
+    padding-bottom: 10px;
+    padding-top: 10px;
+    border-bottom: lightgrey solid thin;
 }
