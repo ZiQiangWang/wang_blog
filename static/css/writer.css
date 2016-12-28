@@ -80,8 +80,8 @@
 }
 
 .folder-rename-input {
-    width: 80%;
-    display:inline-block;
+    width: 65%;
+    display:inline;
 }
 .folder-item.active, .folder-item.hover {
     background-color: royalblue !important;
@@ -90,7 +90,7 @@
 
 .brief-text {
     width: 80%;
-    display:inline;
+    display:inline-block;
     padding-left: 10px;
     overflow: hidden;
     white-space: nowrap;
@@ -98,11 +98,6 @@
     -ms-text-overflow: ellipsis;/* IE/Safari */
     -o-text-overflow: ellipsis;/* Opera */
     -moz-binding: url("ellipsis.xml#ellipsis");/*FireFox*/
-}
-
- span .glyphicon-left {
-    float: left;
-    width: 20%
 }
 
 .auto-height {

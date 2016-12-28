@@ -43,8 +43,16 @@ def model_instance_to_dict(obj):
     '''
     serialized_obj = serializers.serialize('json', [ obj, ])
 
-    r = json.loads(serialized_obj)
-    return r[0]['fields']
+    model_dict = json.loads(serialized_obj)[0]['fields']
+    return model_dict
+
+def queryset_to_dict(obj):
+    serialized_obj = serializers.serialize('json', obj)
+    qset = json.loads(serialized_obj)
+    result = []
+    for q in qset:
+        result.append(q['fields'])
+    return result
 
 if __name__ == '__main__':
     print get_text_from_content('<p><br></p>')

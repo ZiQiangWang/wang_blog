@@ -1,10 +1,33 @@
 $(function() {
 
-    var fmids = new Array()
-    $('.folder-item').each(function(index, el) {
-        fmids.push($(this).data('fmid'))
-    });
-    var cur_fmid = fmids[0]
+    var cur_fmid = undefined
+    var cur_amid = undefined
+    var folder_article_tree = new Object()
+
+    init_tree()
+
+    function init_tree () {
+        init_folder_fmids()
+        init_article_amids()
+     }
+
+    function init_folder_fmids () {
+        $('.folder-item').each(function(index, el) {
+            var fmid = $(this).data('fmid')
+            folder_article_tree[fmid] = undefined
+
+            if ($(this).hasClass('active')) {
+                cur_fmid = fmid
+            }
+        });
+    }
+    function init_article_amids() {
+        $('.article-item').each(function(index, el) {
+            if ($(this).hasClass('active')) {
+                cur_amid = $(this).data('amid')
+            }
+        });
+    }
 
     $(window).keydown(function(e) {
         if (e.keyCode == 83 && e.ctrlKey) {
@@ -46,8 +69,31 @@ $(function() {
                 $(fileGroup).appendTo($('.note-toolbar'));
             }
         }
-
     });
+
+
+    $('#saveFileBtn').click(function(event) {
+        var content = $('#summernote').summernote('code');
+        var title = $('#title').val();
+        console.log(cur_amid)
+        $.ajax({
+            url: '/save_article/',
+            type: 'POST',
+            dataType: 'json',
+            data: {amid:cur_amid, title: title, content:content}
+        })
+        .done(function(data) {
+            folder_article_tree[cur_fmid][cur_amid] = data.article
+
+            refresh_article_list(folder_article_tree[cur_fmid])
+            notify(data.success,data.msg)
+        })
+        .fail(function() {
+            notify(false,'ajax请求失败')
+        })
+    });
+
+
 
     reset_height();
     $(window).resize(function(event) {
@@ -74,63 +120,99 @@ $(function() {
         $(this).children('.glyphicon-folder-close').removeClass('glyphicon-folder-close').addClass('glyphicon-folder-open');
 
         index = $('.folder-item').index(this)
-        cur_fmid = fmids[index]
-        // window.location.href = '/writer/folder/'+cur_fmid
+
+        fmids = Object.keys(folder_article_tree)
+
+        // if (fmids[index] != cur_fmid)
+        {
+            cur_fmid = fmids[index]
+            expand_folder(cur_fmid)
+        }
 
     });
 
-    // function expand_folder (fmid) {
-    //     $.ajax({
-    //         url: '/writer/folder/'+fmid,
-    //         type: 'GET',
-    //         dataType: 'default: Intelligent Guess (Other values: xml, json, script, or html)',
-    //         data: {param1: 'value1'},
-    //     })
-    //     .done(function() {
-    //         console.log("success");
-    //     })
-    // }
+    // 点击文集，展开相应的文章
+    function expand_folder (fmid) {
 
-    function expand_articles_of_folder (fid) {
-        $.ajax({
-            url: '/path/to/file',
-            type: 'default GET (Other values: POST)',
-            dataType: 'default: Intelligent Guess (Other values: xml, json, script, or html)',
-            data: {param1: 'value1'},
-        })
-        .done(function() {
-            console.log("success");
-        })
-        .fail(function() {
-            console.log("error");
-        })
-        .always(function() {
-            console.log("complete");
-        });
+        if (folder_article_tree[cur_fmid] == undefined) {
+            $.ajax({
+                url: '/get_articles_of_folder/',
+                type: 'GET',
+                dataType: 'json',
+                data: {fmid: fmid},
+            })
+            .done(function(data) {
+                if (data.success) {
 
+                    var ar = data.articles
+                    var tmp = new Object()
+                    for (var i = 0; i < ar.length; i++) {
+                        tmp[ar[i].mid] = ar[i]
+                    }
+                    folder_article_tree[fmid] = tmp
+
+                    refresh_article_list(ar)
+                }
+            })
+            .fail(function() {
+                notify(false,'ajax请求失败')
+            })
+        }else {
+            var tmp = new Array()
+            var i=0
+            for (var k in folder_article_tree[cur_fmid]){
+                tmp[i] = folder_article_tree[cur_fmid][k]
+                i++
+            }
+            refresh_article_list(folder_article_tree[cur_fmid])
+        }
+    }
+
+    function object_to_array (obj) {
+        var tmp = new Array()
+        var i=0
+        for (var k in obj){
+            tmp[i] = obj[k]
+            i++
+        }
+        return tmp
+    }
+    function refresh_article_list (obj) {
+
+        ar = object_to_array(obj)
+
+        $('#article .article-item').each(function(index, el) {
+            $(this).remove()
+        })
+
+        for (var i = 0; i < ar.length; i++) {
+            var new_article = $('<a class="list-group-item article-item '+(i == 0 ? "active":"")+'" data-amid="'+ar[i]['mid']+'"> \
+                                    <div> \
+                                        <div class="brief-text article-item-title">'+ar[i]['title']+'</div> \
+                                        <span class="glyphicon glyphicon-trash pull-right" '+ (i != 0 ? "style=display:none;":"") +'></span> \
+                                    </div> \
+                                    <div class="brief-text article-item-content"> \
+                                        '+ar[i]['abstract']+'\
+                                    </div> \
+                                    <div class="article-item-footer"> \
+                                        <span>'+ar[i]['update_time']+'</span> \
+                                        <span>'+ar[i]['num_of_words']+'字</span> \
+                                    </div> \
+                                </a>')
+            $('#article').append(new_article)
+        }
+        if (ar.length) {
+            set_summernote_code(ar[0]['title'],ar[0]['content'])
+            cur_amid = ar[0].mid
+        }else{
+            cur_amid = undefined
+        }
     }
 
     // 切换笔记的激活状态
     $('.article-item').click(function(event) {
         $(".article-item").removeClass('active');
         $(this).addClass('active');
-    });
-
-    $('#saveFileBtn').click(function(event) {
-        var content = $('#summernote').summernote('code');
-        var title = $('#title').val();
-        $.ajax({
-            url: '/save_article/',
-            type: 'POST',
-            dataType: 'json',
-            data: {title: title, content:content}
-        })
-        .done(function(data) {
-            notify(data.success,data.msg)
-        })
-        .fail(function() {
-            notify(false,'ajax请求失败')
-        })
     });
 
 
@@ -157,12 +239,13 @@ $(function() {
         .done(function(data) {
             if (data.success) {
                 var new_folder = $('<div class="list-group-item new-folder-item"> \
-                    <span class="glyphicon glyphicon-folder-close glyphicon-left"> \
+                    <span class="glyphicon glyphicon-folder-close"> \
                     <input type="text" id="new-folder-input" class="form-control folder-rename-input" value='+ data.name + '></div>').hide()
                 $('#folder > .new-folder').after(new_folder)
                 new_folder.slideDown('fast');
 
                 $('#new-folder-input').select()
+
                 .keypress(function(event) {
                     if (event.keyCode == "13") {
                        new_folder_process(data.fmid)
@@ -180,6 +263,7 @@ $(function() {
         })
     });
 
+
     function new_folder_process (fmid) {
         var new_name = $('#new-folder-input').val()
         rename_folder(fmid,new_name)
@@ -187,8 +271,13 @@ $(function() {
             <span class="glyphicon glyphicon-folder-open glyphicon-left"></span> \
             <div class="brief-text ">'+new_name+'</div> \
             </a>')
-        fmids.unshift(new_folder.data('fmid'))
-        console.log(fmids)
+
+        var tmp = new Object()
+        tmp[fmid]=undefined
+        folder_article_tree = Object.assign(tmp, folder_article_tree)
+        cur_fmid = fmid
+        cur_amid = undefined
+        console.log(folder_article_tree)
         $('.new-folder-item').remove()
         $('#folder > .new-folder').after(new_folder)
         new_folder.trigger('click')
@@ -248,13 +337,13 @@ $(function() {
         })
         .done(function(data) {
             ar = data.article
-            var new_article = $('<a class="list-group-item article-item active"> \
+            var new_article = $('<a class="list-group-item article-item active" data-amid='+ar['mid']+'> \
                     <div> \
                         <div class="brief-text article-item-title">'+ar['title']+'</div> \
                         <span class="glyphicon glyphicon-trash pull-right"></span> \
                     </div> \
                     <div class="brief-text article-item-content"> \
-                        '+ar['content']+'\
+                        '+ar['abstract']+'\
                     </div> \
                     <div class="article-item-footer"> \
                         <span>'+ar['update_time']+'</span> \
@@ -262,7 +351,12 @@ $(function() {
                     </div> \
                 </a>')
             $('#article > .new-article').after(new_article)
+
+            var tmp = new Object()
+            tmp[ar.mid]=ar
+            folder_article_tree[cur_fmid] = Object.assign(tmp,folder_article_tree[cur_fmid])
             new_article.trigger('click')
+
             notify(data.success, data.msg)
         })
         .fail(function() {
@@ -271,14 +365,33 @@ $(function() {
 
     });
 
-        // 点击文章触发事件
+    // 点击文章触发事件
     $('body').on('click', '.article-item', function(event) {
 
         $(".article-item").removeClass('active');
         $(this).addClass('active');
         $(".article-item div .glyphicon-trash").hide()
         $(this).find("div span.glyphicon-trash").show()
+
+        index = $('.article-item').index(this)
+
+        articles_obj = folder_article_tree[cur_fmid]
+        if (articles_obj == undefined) {
+            // TODO
+        }else {
+            amids = Object.keys(articles_obj)
+            if (amids[index] != cur_amid) {
+                cur_amid = amids[index]
+                cur_obj = articles_obj[cur_amid]
+                set_summernote_code(cur_obj.title, cur_obj.content)
+            }
+        }
     });
+
+    function set_summernote_code (title, content) {
+        $('#title').val(title)
+        $('#summernote').summernote('code', content);
+    }
 
     $('#edit').click(function(event) {
         $('#summernote').summernote({

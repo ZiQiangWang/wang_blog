@@ -14,36 +14,35 @@ import re
 def index(request):
     return render(request,"index.html",{})
 
-@login_required
-def writer(request):
-    sdata = {}
-    user = get_user(request)
-    folders = db_utils.get_folders_by_user(user)
-    articles = db_utils.get_articls_by_folder(folders[0])
+# @login_required
+# def writer(request):
+#     sdata = {}
+#     user = get_user(request)
+#     folders = db_utils.get_folders_by_user(user)
+#     articles = db_utils.get_articls_by_folder(folders[0])
 
-    sdata['fmid']=folders[0].mid
-    if articles:
-        sdata['amid']=articles[0].mid
+#     sdata['fmid']=folders[0].mid
+#     if articles:
+#         sdata['amid']=articles[0].mid
 
-    sdata['folders'] = folders
-    sdata['articles'] = articles
+#     sdata['folders'] = folders
+#     sdata['articles'] = articles
 
-    return render(request,"writer.html",sdata)
+#     return render(request,"writer.html",sdata)
 
 @login_required
 def save_article(request):
     try:
-        title = request.POST.get('title')
-        content = request.POST.get('content')
-        user = request.user
-        user_profile = db_utils.get_user_profile(user)
-        db_utils.save_article(title,content,user_profile)
+        amid = request.POST['amid']
+        title = request.POST['title']
+        content = request.POST['content']
+        article = db_utils.update_article(amid,title,content)
 
     except:
         traceback.print_exc()
-        return JsonResponse({'success':False, 'msg':u'保存失败'})
+        return JsonResponse({'success':False, 'msg':u'保存文章失败'})
 
-    return JsonResponse({'success':True, 'msg':u'保存成功'})
+    return JsonResponse({'success':True, 'msg':u'保存文章成功', 'article':article.to_dict()})
 
 # 登录
 def sign_in(request):
@@ -158,30 +157,30 @@ def new_article(request):
 
     return JsonResponse({'success':True, 'msg':'新建文章成功', 'article':article.to_dict()})
 
+# @login_required
+# def folder(request,fmid):
+#     sdata = {}
+#     user = get_user(request)
+#     folders = db_utils.get_folders_by_user(user)
+
+#     folder = db_utils.get_folder_by_mid(fmid)
+#     if not folder:
+#         sdata['fmid'] = folders[0].mid
+#         articles = db_utils.get_articles_by_folder(folders[0])
+#         if articles:
+#             sdata['amid'] = articles[0].mid
+#     else:
+#         sdata['fmid']=fmid
+#         articles = db_utils.get_articles_by_folder(folder)
+#         if articles:
+#             sdata['amid']=article[0].mid
+
+#     sdata['folders'] = folders
+#     sdata['articles'] = articles
+#     return render(request,"writer.html",sdata)
+
 @login_required
-def folder(request,fmid):
-    sdata = {}
-    user = get_user(request)
-    folders = db_utils.get_folders_by_user(user)
-
-    folder = db_utils.get_folder_by_mid(fmid)
-    if not folder:
-        sdata['fmid'] = folders[0].mid
-        articles = db_utils.get_articles_by_folder(folders[0])
-        if articles:
-            sdata['amid'] = articles[0].mid
-    else:
-        sdata['fmid']=fmid
-        articles = db_utils.get_articles_by_folder(folder)
-        if articles:
-            sdata['amid']=article[0].mid
-
-    sdata['folders'] = folders
-    sdata['articles'] = articles
-    return render(request,"writer.html",sdata)
-
-@login_required
-def article(request,fmid,amid):
+def writer(request,fmid,amid):
     sdata={}
     user = get_user(request)
     folders = db_utils.get_folders_by_user(user)
@@ -206,4 +205,20 @@ def article(request,fmid,amid):
     sdata['articles'] = articles
 
     return render(request,"writer.html",sdata)
+
+@login_required
+def get_articles_of_folder(request):
+    user = get_user(request)
+
+    try:
+        fmid = request.GET['fmid']
+        folder = db_utils.get_folder_by_mid(fmid)
+        articles = db_utils.get_articles_by_folder(folder)
+    except:
+        traceback.print_exc()
+        return JsonResponse({'success':False, 'msg':'获取文章列表失败'})
+
+    return JsonResponse({'success':True, 'msg':'获取文章列表成功', 'articles':utils.queryset_to_dict(articles)})
+
+
 

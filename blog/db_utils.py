@@ -11,9 +11,11 @@ from utils import md5_of_time,get_text_from_content
 
 def new_article(user, folder):
     article = Article()
-    article.title = u"未命名文章"
+    article.title = u"无标题文章"
     article.content = '<p><br></p>'
-    article.num_of_words = len(get_text_from_content(article.content))
+    text = get_text_from_content(article.content)
+    article.abstract = text[:51]
+    article.num_of_words = len(text)
     article.create_time = timezone.now()
     article.author = user
     article.mid = md5_of_time()
@@ -23,16 +25,19 @@ def new_article(user, folder):
     return article
 
 
-def save_article(title, content, user, folder):
-    article = Article()
+def update_article(mid, title, content):
+    result = Article.objects.filter(mid=mid)
+    if not result:
+        return None
+
+    article = result[0]
     article.title = title
     article.content = content
-    article.num_of_words = len(get_text_from_content(content))
-    article.create_time = timezone.now()
-    article.author = user
-    article.mid = md5_of_time()
-    article.folder = folder
+    text = get_text_from_content(content)
+    article.abstract = text[:51]
+    article.num_of_words = len(text)
     article.save()
+    return article
 
 def email_registered(email):
     result = User.objects.filter(username=email)
@@ -53,7 +58,7 @@ def add_user(email,username,password):
     profile.cname = username
     profile.save()
 
-    add_folder(u"未分类文集",profile)
+    new_folder(u"未分类文集",profile)
 
 def get_user_profile(user):
     result = UserProfile.objects.filter(user=user)

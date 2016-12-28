@@ -17,7 +17,6 @@
                 <div class="new-folder">
                     <a href="#"><span class="glyphicon glyphicon-plus"></span> 新建文集</a>
                 </div>
-
                 {% for f in folders %}
                 <a href="#" class="list-group-item folder-item {% ifequal f.mid fmid %} active {% endifequal %}" data-fmid={{ f.mid }}>
                     <span class="glyphicon {% ifequal f.mid fmid %}glyphicon-folder-open {% else %} glyphicon-folder-close {% endifequal %} glyphicon-left"></span>
@@ -33,13 +32,13 @@
                 </div>
 
                 {% for a in articles %}
-                <a class="list-group-item article-item {% ifequal a.mid amid %}active{% endifequal %}">
+                <a class="list-group-item article-item {% ifequal a.mid amid %}active{% endifequal %}" data-amid={{ a.mid }}>
                     <div>
                         <div class="brief-text article-item-title">{{ a.title }}</div>
                         <span class="glyphicon glyphicon-trash pull-right" {% ifnotequal a.mid amid %} style="display: none;" {% endifnotequal %}></span>
                     </div>
                     <div class="brief-text article-item-content">
-                        {{ a.content.content_to_text }}
+                        {{ a.abstract }}
                     </div>
                     <div class="article-item-footer">
                         <span>{{ a.update_time }}</span>

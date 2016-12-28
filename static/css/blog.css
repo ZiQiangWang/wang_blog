@@ -99,7 +99,7 @@
     margin-left: 0;
     font-size: 12px;
     left: 5px;
-    top: -1px
+    top: -1px；
 }
 
 .icon-addon .form-control:focus + .glyphicon,
@@ -107,6 +107,11 @@
 .icon-addon .form-control:focus + .fa,
 .icon-addon:hover .fa {
     color: #2580DB;
+}
+
+ span.glyphicon-left {
+    width: 15px;
+    float: left;
 }
 
 .sm-width, .notify-tips {

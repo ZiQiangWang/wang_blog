@@ -6,7 +6,7 @@
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.contrib.auth.models import AbstractUser, User
-from utils import get_text_from_content,model_instance_to_dict
+from utils import model_instance_to_dict
 
 
 @python_2_unicode_compatible
@@ -38,6 +38,7 @@ class Article(models.Model):
     '''
     mid = models.CharField(max_length=128,null=False)
     title = models.CharField(max_length=128,blank=False)
+    abstract = models.CharField(max_length=128,blank=False)
     content = models.TextField(blank=False)
     create_time = models.DateTimeField()
     update_time = models.DateTimeField(auto_now=True)
@@ -48,13 +49,8 @@ class Article(models.Model):
     author = models.ForeignKey("UserProfile")
     folder = models.ForeignKey("Folder")
 
-    def content_to_text(self):
-        get_text_from_content(self.content)
-
     def to_dict(self):
-        result = model_instance_to_dict(self)
-        result['content'] = get_text_from_content(self.content)
-        return result
+        return model_instance_to_dict(self)
 
     def __str__(self):
         return self.title
