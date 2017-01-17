@@ -20,7 +20,11 @@
                 {% for f in folders %}
                 <a href="#" class="list-group-item folder-item {% ifequal f.mid fmid %} active {% endifequal %}" data-fmid={{ f.mid }}>
                     <span class="glyphicon {% ifequal f.mid fmid %}glyphicon-folder-open {% else %} glyphicon-folder-close {% endifequal %} glyphicon-left"></span>
-                    <div class="brief-text"> {{ f.name }} </div>
+                    <div class="brief-text">{{ f.name }}</div>
+                    <div id="options" style="visibility: {% ifequal f.mid fmid %} visible{% else %}hidden {% endifequal %};">
+                        <span class="glyphicon glyphicon-pencil"></span>
+                        <span class="glyphicon glyphicon-trash"></span>
+                    </div>
                 </a>
                 {% endfor %}
             </div>
@@ -30,7 +34,6 @@
                 <div class="new-article">
                     <a href="#"><span class="glyphicon glyphicon-pencil"></span> 新建文章</a>
                 </div>
-
                 {% for a in articles %}
                 <a class="list-group-item article-item {% ifequal a.mid amid %}active{% endifequal %}" data-amid={{ a.mid }}>
                     <div>
@@ -41,7 +44,7 @@
                         {{ a.abstract }}
                     </div>
                     <div class="article-item-footer">
-                        <span>{{ a.update_time }}</span>
+                        <span>{{ a.format_update_time }}</span>
                         <span>{{ a.num_of_words }}字</span>
                     </div>
                 </a>
@@ -49,13 +52,59 @@
             </div>
         </div>
         <div class="col-md-7 col-sm-12 nopadding">
-            <div>
+
+            <div id="writer" style="display: {% if amid %}block{% else %}none{% endif %};">
                 <input id="title" type="text" class="title" value="无标题文章" name="title">
+                <div id="summernote" class="noradus nopadding"></div>
             </div>
-            <div id="summernote" class="noradus nopadding"></div>
+            <div class="no-notes auto-height" style="display: {% if amid %}none{% else %}block{% endif %}; ">
+                <span>Wang Blog</span>
+            </div>
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="delete-folder" tabindex="-1" role="dialog" aria-labelledby="del-topic-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="delete-folder-label"><strong>删除文集</strong></h4>
+            </div>
+            <div class="modal-body">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" id="ok" class="btn btn-primary" data-dismiss="modal">确认</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="rename-folder" tabindex="-1" role="dialog" aria-labelledby="del-topic-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="rename-folder-label"><strong>重命名文集</strong></h4>
+            </div>
+            <div class="modal-body">
+                <label>请输入新的文集名</label>
+                <input type="text" class="form-control">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" id="ok" class="btn btn-primary" data-dismiss="modal">确认</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block script %}

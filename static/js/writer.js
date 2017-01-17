@@ -7,10 +7,12 @@ $(function() {
     init_tree()
 
     function init_tree () {
-        init_folder_fmids()
         init_article_amids()
+        init_folder_fmids()
+        init_data()
      }
 
+     // 初始化文集的树结构
     function init_folder_fmids () {
         $('.folder-item').each(function(index, el) {
             var fmid = $(this).data('fmid')
@@ -29,16 +31,49 @@ $(function() {
         });
     }
 
-    $(window).keydown(function(e) {
-        if (e.keyCode == 83 && e.ctrlKey) {
-            e.preventDefault();
-            notify(true,"保存成功")
-        }
-    });
 
+    function init_data() {
+        $.ajax({
+            url: '/get_articles_of_folder/',
+            type: 'GET',
+            dataType: 'json',
+            data: {fmid: cur_fmid},
+        })
+        .done(function(data) {
+            if (data.success) {
+
+                var ar = data.articles
+                var tmp = new Object()
+                for (var i = 0; i < ar.length; i++) {
+                    tmp[ar[i].mid] = ar[i]
+                }
+                folder_article_tree[cur_fmid] = tmp
+
+                var articles_obj = folder_article_tree[cur_fmid]
+                if (articles_obj == undefined || Object.keys(articles_obj).length == 0) {
+                    // TODO
+                }else {
+                    cur_obj = articles_obj[cur_amid]
+                    set_summernote_code(cur_obj.title, cur_obj.content)
+                }
+            }
+        })
+        .fail(function() {
+            console.log('ajax失败')
+        })
+    }
+
+
+    // 初始化插件summernote
     $('#summernote').summernote({
-        minHeight: null, // set minimum height of editor
-        maxHeight: null, // set maximum height of editor
+        // toolbar: [
+        //     // ['style', ['bold', 'italic', 'underline', 'clear']],
+        //     // ['font', ['strikethrough', 'superscript', 'subscript']],
+        //     // ['fontsize', ['fontsize']],
+        //     // ['color', ['color']],
+        //     // ['para', ['ul', 'ol', 'paragraph']],
+        //     // ['height', ['height']]
+        // ],
         callbacks: {
             onInit: function() {
                 var ned = $('div.note-editor');
@@ -72,6 +107,7 @@ $(function() {
     });
 
 
+    // 保存文章内容
     $('#saveFileBtn').click(function(event) {
         var content = $('#summernote').summernote('code');
         var title = $('#title').val();
@@ -93,8 +129,6 @@ $(function() {
         })
     });
 
-
-
     reset_height();
     $(window).resize(function(event) {
         reset_height();
@@ -109,9 +143,20 @@ $(function() {
         });
     }
 
+    $(window).keydown(function(e) {
+        if (e.keyCode == 83 && e.ctrlKey) {
+            e.preventDefault();
+            notify(true,"保存成功")
+        }
+    });
+
+    $('body').hide()
+    $(window).on('load', function() {
+        $("body").show();
+    });
+
     // 点击文集触发事件
     $('body').on('click', '.folder-item', function(event) {
-
         // 切换文集的打开关闭图标，以及激活状态
         $(".folder-item").removeClass('active');
         $(this).addClass('active');
@@ -119,19 +164,22 @@ $(function() {
         $('.folder-item > .glyphicon-folder-open').removeClass('glyphicon-folder-open').addClass('glyphicon-folder-close');
         $(this).children('.glyphicon-folder-close').removeClass('glyphicon-folder-close').addClass('glyphicon-folder-open');
 
+        $('.folder-item').each(function(index, el) {
+            var opt = $(this).find('#options')
+            if ($(this).hasClass('active')) {
+                opt.css('visibility', 'visible');
+            }else {
+                opt.css('visibility', 'hidden');
+            }
+        });
         index = $('.folder-item').index(this)
 
         fmids = Object.keys(folder_article_tree)
-
-        // if (fmids[index] != cur_fmid)
-        {
-            cur_fmid = fmids[index]
-            expand_folder(cur_fmid)
-        }
-
+        cur_fmid = fmids[index]
+        expand_folder(cur_fmid)
     });
 
-    // 点击文集，展开相应的文章
+    // 点击文集，获取数据，展开相应的文章
     function expand_folder (fmid) {
 
         if (folder_article_tree[cur_fmid] == undefined) {
@@ -150,7 +198,6 @@ $(function() {
                         tmp[ar[i].mid] = ar[i]
                     }
                     folder_article_tree[fmid] = tmp
-
                     refresh_article_list(ar)
                 }
             })
@@ -177,6 +224,8 @@ $(function() {
         }
         return tmp
     }
+
+    // 根据拉取的数据，重新渲染文章列表
     function refresh_article_list (obj) {
 
         ar = object_to_array(obj)
@@ -202,19 +251,21 @@ $(function() {
             $('#article').append(new_article)
         }
         if (ar.length) {
+            $('#writer').show()
+            $('.no-notes').hide()
             set_summernote_code(ar[0]['title'],ar[0]['content'])
             cur_amid = ar[0].mid
         }else{
             cur_amid = undefined
+            $('#writer').hide()
+            $('.no-notes').show()
         }
     }
 
-    // 切换笔记的激活状态
-    $('.article-item').click(function(event) {
-        $(".article-item").removeClass('active');
-        $(this).addClass('active');
-    });
-
+    function set_summernote_code (title, content) {
+        $('#title').val(title)
+        $('#summernote').summernote('code', content);
+    }
 
     function notify(success,msg) {
 
@@ -268,48 +319,35 @@ $(function() {
         var new_name = $('#new-folder-input').val()
         rename_folder(fmid,new_name)
         var new_folder = $('<a class="list-group-item folder-item" data-fmid=' + fmid +'> \
-            <span class="glyphicon glyphicon-folder-open glyphicon-left"></span> \
-            <div class="brief-text ">'+new_name+'</div> \
-            </a>')
+                                <span class="glyphicon glyphicon-folder-open glyphicon-left"></span> \
+                                <div class="brief-text ">'+new_name+'</div> \
+                                <div id="options" style="visibility: hidden;">\
+                                    <span class="glyphicon glyphicon-pencil"></span>\
+                                    <span class="glyphicon glyphicon-trash"></span>\
+                                </div>\
+                            </a>')
 
         var tmp = new Object()
         tmp[fmid]=undefined
         folder_article_tree = Object.assign(tmp, folder_article_tree)
         cur_fmid = fmid
         cur_amid = undefined
-        console.log(folder_article_tree)
         $('.new-folder-item').remove()
         $('#folder > .new-folder').after(new_folder)
         new_folder.trigger('click')
     }
 
-    //  双击文集进行重命名
-    $('body').on('dblclick','.folder-item > div.brief-text',function (event) {
-        var label = $(this)
-        var value = label.text()
-        var input = $('<input type="text" value='+ value +' class="form-control folder-rename-input">')
-        label.hide()
-        label.after(input)
-        input[0].focus()
-        input.select()
-
-        input.blur(function(event) {
-            label.text($(this).val())
-            $(this).remove()
-            rename_folder(cur_fmid,label.text())
-            label.show()
+    // 点击编辑进行重命名
+    $('body').on('click', '.folder-item #options .glyphicon-pencil', function(event) {
+        var name = $(this).parent('#options').prev('.brief-text')
+        $('#rename-folder .modal-body input').val(name.text())
+        $('#rename-folder').modal('show')
+        $('#rename-folder .modal-footer #ok').one('click', function(event) {
+            var input = $('#rename-folder .modal-body input')
+            rename_folder(cur_fmid, input.val())
+            name.text(input.val())
         });
-
-        input.keypress(function(event) {
-            if (event.keyCode == "13") {
-                label.text($(this).val())
-                $(this).remove()
-                rename_folder(cur_fmid,label.text())
-                label.show()
-            }
-        });
-    })
-
+    });
 
     //  重命名文集
     function rename_folder(fmid, new_name) {
@@ -326,6 +364,16 @@ $(function() {
             notify(false,'ajax请求失败')
         })
     };
+
+    // 删除文集
+    $('body').on('click', '.folder-item #options .glyphicon-trash', function(event) {
+        var name = $(this).parent('#options').prev('.brief-text')
+        $('#delete-folder .modal-body').text('确认删除文集【'+ name.text() +'】？包含的文章将同时被删除')
+        $('#delete-folder').modal('show')
+        $('#delete-folder .modal-footer #ok').one('click', function(event) {
+
+        });
+    });
 
     // 新建文章
     $('#article > .new-article').click(function(event) {
@@ -386,20 +434,5 @@ $(function() {
                 set_summernote_code(cur_obj.title, cur_obj.content)
             }
         }
-    });
-
-    function set_summernote_code (title, content) {
-        $('#title').val(title)
-        $('#summernote').summernote('code', content);
-    }
-
-    $('#edit').click(function(event) {
-        $('#summernote').summernote({
-            focus: true
-        });
-    });
-    $('#save').click(function(event) {
-        var makrup = $('#summernote').summernote('code');
-        $('#summernote').summernote('destroy');
     });
 });

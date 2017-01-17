@@ -52,6 +52,9 @@ class Article(models.Model):
     def to_dict(self):
         return model_instance_to_dict(self)
 
+    def format_update_time(self):
+        return self.update_time.strftime('%Y-%m-%d')
+
     def __str__(self):
         return self.title
 

@@ -14,22 +14,6 @@ import re
 def index(request):
     return render(request,"index.html",{})
 
-# @login_required
-# def writer(request):
-#     sdata = {}
-#     user = get_user(request)
-#     folders = db_utils.get_folders_by_user(user)
-#     articles = db_utils.get_articls_by_folder(folders[0])
-
-#     sdata['fmid']=folders[0].mid
-#     if articles:
-#         sdata['amid']=articles[0].mid
-
-#     sdata['folders'] = folders
-#     sdata['articles'] = articles
-
-#     return render(request,"writer.html",sdata)
-
 @login_required
 def save_article(request):
     try:
@@ -67,12 +51,14 @@ def sign_out(request):
 
 
 # 获取当前用户
+@login_required
 def get_user(request):
     user = request.user
     user_profile = db_utils.get_user_profile(user)
     return user_profile
 
 # 注册
+@login_required
 def sign_up(request):
     if request.POST:
 
@@ -203,7 +189,6 @@ def writer(request,fmid,amid):
                 sdata['amid'] = articles[0].mid
     sdata['folders'] = folders
     sdata['articles'] = articles
-
     return render(request,"writer.html",sdata)
 
 @login_required

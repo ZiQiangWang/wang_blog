@@ -47,11 +47,17 @@ def model_instance_to_dict(obj):
     return model_dict
 
 def queryset_to_dict(obj):
+    '''
+        将一个查询结果转换为字典
+    '''
     serialized_obj = serializers.serialize('json', obj)
     qset = json.loads(serialized_obj)
     result = []
     for q in qset:
         result.append(q['fields'])
+
+    for r in result:
+        r['update_time']=r['update_time'].split('T')[0]
     return result
 
 if __name__ == '__main__':
